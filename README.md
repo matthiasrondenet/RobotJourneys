@@ -1,2 +1,4 @@
 # RobotJourneys
-Robot Journeys Kata in F#
+
+Playing and learning F# 
+Exercise from [Mike Hadlow](https://github.com/mikehadlow/Journeys)
