@@ -15,68 +15,70 @@ type Input = {
 }
 
 let CreateInput (input:string) =
-    let lines = input.Split( [|"\r\n"|], StringSplitOptions.RemoveEmptyEntries) |> Seq.map (fun s-> s.Trim())
-
-    let MapDirection (c) =
+    let lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries) |> Seq.map (fun s-> s.Trim())
+    
+    let mapDirection (c) =
         match c with
         | 'E' -> EAST
         | 'W' -> WEST
         | 'N' -> NORTH
         | 'S' -> SOUTH
+        | a -> failwithf "Unkown direction %c" a
 
-    let MapCommand (c) =
+    let mapCommand (c) =
         match c with
         | 'R' -> TurnRight
         | 'L' -> TurnLeft
         | 'F' -> MoveForward
+        | a -> failwithf "Unkown command %c" a
 
-    let CreateRobotState (input:string) =
-        let chars = input.Split ' ' |> Seq.map (char)
+    let createRobotState (input:string) =
+        let chars = input.Trim().Split ' ' |> Seq.map (char)
         let positions = chars |> Seq.take 2 |> Seq.map (int)
         let x = Seq.item 0 positions
         let y = Seq.item 1 positions
-        let direction = chars |> Seq.last |> MapDirection
+        let direction = chars |> Seq.last |> mapDirection
         ((x,y),direction)
 
-    let CreateCommands (input:string) =
-        input.ToCharArray() |> Seq.map MapCommand
+    let createCommands (input:string) =
+        input.ToCharArray() |> Seq.map mapCommand
 
-    let initialRobotState = CreateRobotState (Seq.item 0 lines)
-    let commands = CreateCommands(Seq.item 1 lines)
-    let finalRobotState = CreateRobotState (Seq.item 2 lines)
+    let initialRobotState = createRobotState (Seq.item 0 lines)
+    let commands = createCommands(Seq.item 1 lines)
+    let finalRobotState = createRobotState (Seq.item 2 lines)
 
     {InitialRobotState = initialRobotState; Commands = commands; FinalRobotState = finalRobotState}
 
 let ProcessRobotCommands (initialRobotState, commands) =
     
-    let RotateLeft((position,direction)) =
+    let rotateLeft((position,direction)) =
         match direction with
         | EAST -> (position, NORTH)
         | WEST -> (position, SOUTH)
         | NORTH -> (position, WEST)
         | SOUTH -> (position, EAST)
 
-    let RotateRight((position,direction)) =
+    let rotateRight((position,direction)) =
         match direction with
         | EAST -> (position, SOUTH)
         | WEST -> (position, NORTH)
         | NORTH -> (position, EAST)
         | SOUTH -> (position, WEST)
 
-    let MoveForward(((x,y),direction)) = 
+    let moveForward(((x,y),direction)) = 
         match direction with
         | EAST -> ((x+1,y), direction)
         | WEST -> ((x-1,y), direction)
         | NORTH -> ((x,y+1), direction)
         | SOUTH -> ((x,y-1), direction)
 
-    let MapCommand(command) = 
+    let mapCommand(command) = 
         match command with
-        | TurnLeft -> RotateLeft
-        | TurnRight -> RotateRight
-        | MoveForward -> MoveForward
+        | TurnLeft -> rotateLeft
+        | TurnRight -> rotateRight
+        | MoveForward -> moveForward
 
-    let finalRobotState = Seq.fold (fun r c -> MapCommand c r) initialRobotState commands
+    let finalRobotState = Seq.fold (fun r c -> mapCommand c r) initialRobotState commands
     finalRobotState
 
 [<Theory>]
