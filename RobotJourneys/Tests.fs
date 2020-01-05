@@ -16,9 +16,7 @@ type Input = {
 
 let CreateInput (input:string) =
     let lines = input.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries) |> Seq.map (fun s-> s.Trim())
-
-    Console.WriteLine(sprintf "%A" lines)
-
+    
     let mapDirection (c) =
         match c with
         | 'E' -> EAST
@@ -35,10 +33,6 @@ let CreateInput (input:string) =
         | a -> failwithf "Unkown command %c" a
 
     let createRobotState (input:string) =
-        printfn "||%s||" input
-        Console.WriteLine(sprintf "||%s||" input)
-        System.Diagnostics.Trace.WriteLine(sprintf "||%s||" input)
-
         let chars = input.Trim().Split ' ' |> Seq.map (char)
         let positions = chars |> Seq.take 2 |> Seq.map (int)
         let x = Seq.item 0 positions
